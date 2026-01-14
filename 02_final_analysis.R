@@ -125,8 +125,20 @@ summary_table %>%
     column_spec(3, bold = TRUE, color = "turquoise3")
 
 #### --- 4. Performance & Strategy --- ####
+# A. Generate Raw Probabilities
 probs <- predict(model_str, newdata = test_data, 
                  type = "response")
+
+# B. OPTIMIZATION: Find the best threshold for F1-Score
+eval <- prediction(probs, test_data$target)
+f1_perf <- performance(eval, "f")
+
+# Threshold that maximizes the F1 Score
+best_threshold <- f1_perf@x.values[[1]][which.max(f1_perf@y.values[[1]])]
+print(paste("Mathematically Optimal Threshold:", 
+            round(best_threshold, 4)))
+
+# C. Applyng the optimized threshold
 final_preds <- ifelse(probs > 0.42, 1, 0)
 
 # Tech Report
